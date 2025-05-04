@@ -1,0 +1,16 @@
+# Normalize all text files to use Unix-style line endings (LF)
+* text=auto
+
+# Explicitly enforce LF endings for source and config files
+*.py text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.xml text eol=lf
+*.md text eol=lf
+
+# Treat binary files as binary (no line ending conversions)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.gif binary

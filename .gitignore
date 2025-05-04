@@ -1,5 +1,25 @@
+# Byte-compiled / cache files
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# Virtual environments
 .venv/
+env/
+venv/
+
+# PyCharm project settings (optional, useful если делишься проектом)
+.idea/
+
+# Environment variables or secrets
 .env
+
+# SQLite or other local test databases
 *.sqlite3
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# Reports, test outputs
+/reports/
