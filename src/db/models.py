@@ -5,6 +5,20 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from .database import Base
 
+
+class CheckSummaryView(Base):
+    __tablename__ = "check_summary_view"
+    __table_args__ = {"extend_existing": True}
+
+    session_id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String)
+    file_format = Column(String)
+    created_at = Column(DateTime)
+    issue_count = Column(Integer)
+    high_severity_issues = Column(Integer)
+
+
+# === View models ===
 class CheckSession(Base):
     __tablename__ = "check_sessions"
 
@@ -17,6 +31,7 @@ class CheckSession(Base):
 
     def __repr__(self):
         return f"<CheckSession(filename={self.filename}, issues={self.issues_found})>"
+
 
 class Issue(Base):
     __tablename__ = "issues"
@@ -35,6 +50,7 @@ class Issue(Base):
 
     def __repr__(self):
         return f"<Issue(type={self.issue_type}, column={self.column_name}, severity={self.severity})>"
+
 
 # Add reverse relationship to CheckSession
 CheckSession.issues = relationship("Issue", back_populates="session", cascade="all, delete-orphan")

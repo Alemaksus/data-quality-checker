@@ -23,14 +23,16 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Literal
 
-from src.api.routes import history
-from src.core.data_loader import load_data  # we will write this later
-
+from src.api.routes import history, summary
+from src.core.data_loader import load_data  # to be implemented
 
 app = FastAPI(title="Data Quality Checker")
 
 # connect history routes
 app.include_router(history.router)
+
+# connect summary routes
+app.include_router(summary.router)
 
 
 @app.post("/upload-data/")
