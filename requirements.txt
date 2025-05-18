@@ -5,3 +5,5 @@ SQLAlchemy>=2.0
 
 pydantic>=2.11.4
 pytest>=8.3.5
+markdown>=3.8
+pdfkit>=1.0.0

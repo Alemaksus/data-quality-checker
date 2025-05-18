@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Data Quality Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #2b6777;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+        }
+        th {
+            background-color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+<h1>🧾 Data Quality Report</h1>
+<p>Generated: 2025-05-18 21:12:11</p>
+<h2>🗂 Dataset Overview</h2>
+<ul>
+<li>Rows: 5</li>
+<li>Columns: 4</li>
+</ul>
+<h2>📊 Summary Statistics</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">name</th>
+<th style="text-align: left;">email</th>
+<th style="text-align: right;">age</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">count</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td style="text-align: left;">unique</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td style="text-align: left;">top</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: left;">Alice</td>
+<td style="text-align: left;">alice@example.com</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">freq</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;">mean</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">std</td>
+<td style="text-align: right;">1.58114</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">min</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">25%</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">50%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">75%</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">max</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: left;">nan</td>
+<td style="text-align: right;">nan</td>
+</tr>
+</tbody>
+</table>
+<h2>🔎 Missing Values</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: right;">0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;">email</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<h2>⚠️ Detected Issues</h2>
+<ul>
+<li>Row 3: 'age' is not a number</li>
+<li>Row 4: 'name' is missing</li>
+</ul>
+<h2>🤖 AI Insights</h2>
+<p>The 'email' field contains 20% missing values. Consider applying a format validator.
+'age' should be normalized and strictly numeric. Missing values may require imputation or filtering.</p>
+<h2>✅ Recommendations</h2>
+<ul>
+<li>Standardize formats (e.g., dates, numeric fields)</li>
+<li>Handle missing values (impute or drop)</li>
+<li>Validate field types and business rules</li>
+</ul>
+</body>
+</html>
