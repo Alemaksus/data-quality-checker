@@ -1,7 +1,12 @@
 import pandas as pd
 from datetime import datetime
 
-def generate_markdown_report(df: pd.DataFrame, issues: list[str], ai_insights: str = "") -> str:
+def generate_markdown_report(
+        df: pd.DataFrame,
+        issues: list[str],
+        ai_insights: str = "",
+        client_name: str = None
+) -> str:
     """
     Generate a structured Markdown report with basic statistics, missing values,
     detected issues and AI-generated insights.
@@ -9,13 +14,17 @@ def generate_markdown_report(df: pd.DataFrame, issues: list[str], ai_insights: s
     :param df: Input DataFrame
     :param issues: List of textual issues found during validation
     :param ai_insights: Optional AI-generated interpretation of data quality
+    :param client_name: Optional client or company name
     :return: Markdown-formatted string
     """
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     report = []
 
     report.append(f"# 🧾 Data Quality Report")
-    report.append(f"Generated: {now}\n")
+    report.append(f"Generated: {now}")
+    if client_name:
+        report.append(f"Client: **{client_name}**")
+    report.append("")
 
     report.append("## 🗂 Dataset Overview")
     report.append(f"- Rows: {df.shape[0]}")
