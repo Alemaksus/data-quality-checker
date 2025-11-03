@@ -26,6 +26,13 @@ Thumbs.db
 
 # Generated files
 results.txt
+.coverage
+coverage.xml
+htmlcov/
 
 # Temporary uploads
 /tmp_uploads/
+
+# Local documentation (not for commit)
+PROJECT_STATUS.md
+Documents/
