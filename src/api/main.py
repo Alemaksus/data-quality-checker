@@ -31,6 +31,7 @@ import os
 from src.api.routes import history, summary
 from src.core.data_loader import load_data  # will be implemented
 from src.core.generate_sample_report import generate_data_quality_report
+from src.core.url_loader import download_file_from_url
 
 app = FastAPI(title="Data Quality Checker")
 
@@ -85,6 +86,55 @@ async def upload_data(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"❌ {str(e)}")
 
+    finally:
+        # Clean up temporary file if it was created
+        if temp_file_path is not None:
+            try:
+                temp_file_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+
+@app.post("/upload-from-url/")
+async def upload_from_url(
+    url: str = Form(..., description="HTTP/HTTPS URL to download file from"),
+    report_format: Literal["md", "html", "pdf", "all"] = Form("pdf"),
+    include_ai_insights: bool = Form(True),
+    client_name: Optional[str] = Form(None)
+):
+    """
+    Upload and analyze a dataset file from a URL.
+    
+    Supports CSV, JSON, and XML files from HTTP/HTTPS URLs.
+    Maximum file size: 100MB
+    """
+    temp_file_path = None
+    try:
+        # Download file from URL
+        temp_file_path = await download_file_from_url(url)
+        
+        # Generate report with given parameters
+        paths = generate_data_quality_report(
+            input_path=temp_file_path,
+            report_format=report_format,
+            include_ai=include_ai_insights,
+            client_name=client_name
+        )
+        
+        filename = temp_file_path.name
+        return JSONResponse(content={
+            "message": f"✅ Report successfully generated from URL '{url[:50]}...'",
+            "filename": filename,
+            "report_paths": paths
+        })
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"❌ {str(e)}")
+    
     finally:
         # Clean up temporary file if it was created
         if temp_file_path is not None:

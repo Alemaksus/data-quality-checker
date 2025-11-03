@@ -1,15 +1,91 @@
 import pandas as pd
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 from src.core.reporting import generate_markdown_report
 from src.core.export_utils import save_markdown, save_html, save_pdf
+from src.core.validator import validate_dataframe
+from src.core.ml_advisor import get_ml_recommendations
+from src.db.database import SessionLocal, engine, Base
+from src.db.models import CheckSession, Issue
+from datetime import datetime
+
+
+def save_check_to_db(
+    filename: str,
+    file_format: str,
+    rows: int,
+    validation_issues: list[dict],
+    db_session=None
+) -> Optional[int]:
+    """
+    Save validation check results to database.
+    
+    Args:
+        filename: Name of the file that was checked
+        file_format: Format of the file (csv, json, etc.)
+        rows: Number of rows in the dataset
+        validation_issues: List of validation issue dictionaries
+        db_session: Optional database session (creates new if None)
+        
+    Returns:
+        Session ID if successful, None otherwise
+    """
+    session_created = False
+    if db_session is None:
+        db_session = SessionLocal()
+        session_created = True
+    
+    try:
+        # Ensure tables exist
+        Base.metadata.create_all(bind=engine)
+        
+        # Count issues by severity
+        high_severity_count = sum(1 for issue in validation_issues if issue.get('severity') == 'high')
+        
+        # Create CheckSession
+        check_session = CheckSession(
+            filename=filename,
+            file_format=file_format,
+            rows=rows,
+            issues_found=len(validation_issues),
+            created_at=datetime.utcnow()
+        )
+        
+        db_session.add(check_session)
+        db_session.flush()  # Get the ID
+        
+        # Create Issue records
+        for issue_dict in validation_issues:
+            issue = Issue(
+                session_id=check_session.id,
+                row_number=issue_dict.get('row_number'),
+                column_name=issue_dict.get('column_name'),
+                issue_type=issue_dict.get('issue_type'),
+                description=issue_dict.get('description'),
+                severity=issue_dict.get('severity', 'medium'),
+                detected_at=datetime.utcnow()
+            )
+            db_session.add(issue)
+        
+        db_session.commit()
+        return check_session.id
+    
+    except Exception as e:
+        db_session.rollback()
+        print(f"Error saving to database: {e}")
+        return None
+    
+    finally:
+        if session_created:
+            db_session.close()
 
 
 def generate_data_quality_report(
     input_path: Path,
     report_format: str = "pdf",
     include_ai: bool = True,
-    client_name: Optional[str] = None
+    client_name: Optional[str] = None,
+    save_to_db: bool = True
 ) -> dict:
     """
     Generates a data quality report from a CSV/JSON file and exports it.
@@ -19,9 +95,10 @@ def generate_data_quality_report(
         report_format (str): Output format: "md", "html", "pdf", or "all"
         include_ai (bool): Whether to include AI-based insights
         client_name (str, optional): Optional client name for the report
+        save_to_db (bool): Whether to save check results to database
 
     Returns:
-        dict: Paths to generated report files
+        dict: Paths to generated report files and session_id if saved to DB
     """
     # Load the dataset
     if input_path.suffix == ".csv":
@@ -31,20 +108,46 @@ def generate_data_quality_report(
     else:
         raise ValueError("Unsupported file format. Only CSV and JSON are supported.")
 
-    # Detect issues (basic stub for now)
-    issues = []
-    if df.isnull().values.any():
-        issues.append("Dataset contains missing values.")
-
-    # Example AI insights
-    ai_insights = (
-        "Missing values detected. Consider imputation or data cleanup.\n"
-        "Check if categorical columns need normalization or encoding."
-        if include_ai else ""
-    )
+    # Run validation
+    validation_issues, validation_summary = validate_dataframe(df)
+    
+    # Get ML recommendations if requested
+    ml_recommendations = None
+    ml_insights = ""
+    if include_ai:
+        ml_recommendations = get_ml_recommendations(df, validation_issues)
+        # Format ML recommendations as text
+        if ml_recommendations.get('recommendations'):
+            ml_insights = f"**ML Readiness Score**: {ml_recommendations['readiness_score']}/100 ({ml_recommendations['readiness_level']})\n\n"
+            ml_insights += "**Recommendations for ML Preparation:**\n\n"
+            for rec in ml_recommendations['recommendations'][:15]:  # Limit to first 15
+                ml_insights += f"- {rec}\n"
+    
+    # Convert validation issues to readable format for report
+    issue_texts = []
+    for issue in validation_issues[:50]:  # Limit to first 50 for readability
+        desc = issue['description']
+        if issue.get('row_number') is not None:
+            desc = f"Row {issue['row_number'] + 1}: {desc}"
+        issue_texts.append(desc)
+    
+    # Save to database if requested
+    session_id = None
+    if save_to_db:
+        session_id = save_check_to_db(
+            filename=input_path.name,
+            file_format=input_path.suffix[1:] if input_path.suffix else "unknown",
+            rows=len(df),
+            validation_issues=validation_issues
+        )
 
     # Generate report
-    markdown = generate_markdown_report(df, issues, ai_insights, client_name)
+    markdown = generate_markdown_report(
+        df, 
+        issue_texts, 
+        ml_insights if include_ai else "", 
+        client_name
+    )
 
     filename = input_path.stem
     output_paths = {}
@@ -55,6 +158,14 @@ def generate_data_quality_report(
         output_paths["html"] = save_html(markdown, filename)
     if report_format in ("pdf", "all"):
         output_paths["pdf"] = save_pdf(markdown, filename)
+    
+    # Add metadata to output
+    output_paths["session_id"] = session_id
+    output_paths["issues_count"] = len(validation_issues)
+    output_paths["validation_summary"] = validation_summary
+    if ml_recommendations:
+        output_paths["ml_readiness_score"] = ml_recommendations["readiness_score"]
+        output_paths["ml_readiness_level"] = ml_recommendations["readiness_level"]
 
     return output_paths
 
