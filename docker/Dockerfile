@@ -31,9 +31,10 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy application code
 COPY src/ ./src/
 COPY Makefile .
+COPY pytest.ini .
 
 # Create necessary directories
-RUN mkdir -p reports tmp_uploads data
+RUN mkdir -p reports tmp/uploads data/db logs
 
 # Set environment variables
 ENV PYTHONPATH=/app

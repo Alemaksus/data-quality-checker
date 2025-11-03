@@ -17,3 +17,15 @@ matplotlib>=3.8.0
 
 # Excel export
 openpyxl>=3.1.2
+
+# System monitoring
+psutil>=5.9.0
+
+# Extended export formats
+pyarrow>=14.0.0  # For Parquet export
+
+# Webhooks
+httpx>=0.25.0  # For async HTTP requests
+
+# Rate limiting (optional, using in-memory for now)
+# slowapi>=1.0.1  # Alternative rate limiting library

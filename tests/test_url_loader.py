@@ -35,8 +35,8 @@ class TestUrlLoader:
         mock_response.iter_content.return_value = [b"id,name\n1,Alice\n2,Bob"]
         
         # Mock temp directory
-        test_dir = tmp_path / "tmp_uploads"
-        test_dir.mkdir(exist_ok=True)
+        test_dir = tmp_path / "tmp" / "uploads"
+        test_dir.mkdir(parents=True, exist_ok=True)
         
         with patch('src.core.url_loader.requests.get', return_value=mock_response):
             with patch('src.core.url_loader.Path') as mock_path:
@@ -115,8 +115,8 @@ class TestUrlLoader:
         mock_response.raise_for_status = Mock()
         mock_response.iter_content.return_value = [b""]  # Empty content
         
-        test_dir = tmp_path / "tmp_uploads"
-        test_dir.mkdir(exist_ok=True)
+        test_dir = tmp_path / "tmp" / "uploads"
+        test_dir.mkdir(parents=True, exist_ok=True)
         
         with patch('src.core.url_loader.requests.get', return_value=mock_response):
             with patch('src.core.url_loader.Path') as mock_path_class:
@@ -150,8 +150,8 @@ class TestUrlLoader:
         mock_response.raise_for_status = Mock()
         mock_response.iter_content.return_value = [b"x" * 1024]  # Some content
         
-        test_dir = tmp_path / "tmp_uploads"
-        test_dir.mkdir(exist_ok=True)
+        test_dir = tmp_path / "tmp" / "uploads"
+        test_dir.mkdir(parents=True, exist_ok=True)
         
         with patch('src.core.url_loader.requests.get', return_value=mock_response):
             with patch('src.core.url_loader.Path') as mock_path_class:
@@ -188,8 +188,8 @@ class TestUrlLoader:
         mock_response.raise_for_status = Mock()
         mock_response.iter_content.return_value = [b"id,name\n1,Alice"]
         
-        test_dir = tmp_path / "tmp_uploads"
-        test_dir.mkdir(exist_ok=True)
+        test_dir = tmp_path / "tmp" / "uploads"
+        test_dir.mkdir(parents=True, exist_ok=True)
         
         with patch('src.core.url_loader.requests.get', return_value=mock_response):
             # This will test the Content-Disposition parsing logic

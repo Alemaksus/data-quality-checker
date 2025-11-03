@@ -3,25 +3,27 @@ version: '3.8'
 services:
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: data-quality-checker-api
     ports:
       - "8000:8000"
     environment:
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
-      - DATABASE_URL=${DATABASE_URL:-sqlite:///./db.sqlite3}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///./data/db/db.sqlite3}
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     volumes:
       # Persist database
-      - ./db.sqlite3:/app/db.sqlite3
+      - ../data/db:/app/data/db
       # Persist reports
-      - ./reports:/app/reports
+      - ../reports:/app/reports
       # Persist temporary uploads (optional, can be ephemeral)
-      - ./tmp_uploads:/app/tmp_uploads
+      - ../tmp:/app/tmp
+      # Persist logs
+      - ../logs:/app/logs
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/docs', timeout=5)"]

@@ -2,97 +2,96 @@
 
 **Automated data quality analysis tool using FastAPI and pandas.**
 
-Data Quality Checker is a lightweight and modular tool for validating the structural and semantic quality of datasets. It supports CSV, JSON, and XML files as input and provides:
+Data Quality Checker is a professional-grade tool for validating the structural and semantic quality of datasets. It supports CSV, JSON, and XML files as input and provides comprehensive validation reports, ML readiness recommendations, and flexible output formats.
 
-- Validation reports on missing values, duplicates, and data types  
-- Recommendations for ML-readiness  
-- Flexible output formats: JSON, CSV, and HTML  
-- Future integration with LangChain agents for advanced AI-based data analysis
+## What It Does
 
-The project is designed for data analysts, QA engineers, and ML practitioners working with raw or user-submitted datasets.
+The Data Quality Checker performs:
+- **Data Validation**: Missing values, duplicates, data types, ranges, email/phone/date validation
+- **ML Readiness Analysis**: Provides ML readiness score and recommendations for feature engineering
+- **Comprehensive Reporting**: Generates reports in multiple formats (Markdown, HTML, PDF, Excel, JSON, CSV, XML, Parquet)
+- **API Integration**: RESTful API with Swagger UI documentation
+- **History Tracking**: Stores validation sessions and provides comparison capabilities
+- **Batch Processing**: Process multiple files at once
+- **Webhooks**: Automated notifications for validation events
+- **Custom Validation Rules**: Configure custom validation rules via API
 
-## Installation
+## Quick Start
 
-Install dependencies:
+### Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running the API Server
-
-To start the API server:
+### Running the API Server
 
 ```bash
 uvicorn src.api.main:app --reload
 ```
 
-Then open `http://127.0.0.1:8000/docs` to access Swagger UI for testing endpoints.
+Access the API documentation at: `http://127.0.0.1:8000/docs`
 
-## Running Tests
-
-### Run all tests with coverage:
+### Running Tests
 
 ```bash
-pytest --cov=src --cov-report=term-missing --cov-report=html
+pytest --cov=src --cov-report=term-missing
 ```
 
-### Run tests without coverage:
-
-```bash
-pytest
-```
-
-### Run specific test file:
-
-```bash
-pytest tests/test_validator.py
-```
-
-### Run tests with verbose output:
-
-```bash
-pytest -v
-```
-
-### Run only unit tests:
-
-```bash
-pytest -m unit
-```
-
-### Run only integration tests:
-
-```bash
-pytest -m integration
-```
-
-### Coverage Report
-
-After running tests with coverage, view the HTML report:
-
-```bash
-# Open htmlcov/index.html in your browser
-```
-
-Coverage threshold is set to **90%** minimum (currently **93%**).
+Coverage threshold: **90%** (currently **91.76%**)
 
 ## Project Structure
 
-- `src/api/` — FastAPI endpoints  
-- `src/core/` — data loading, validation, ML advising, and reporting  
-- `src/utils/` — helper utilities  
-- `tests/` — comprehensive test suite (unit + integration tests)
-- `data/` — sample input files  
-- `reports/` — generated output reports  
+```
+├── src/               # Source code
+│   ├── api/          # FastAPI endpoints and middleware
+│   ├── core/         # Business logic (validation, ML advisor, reporting)
+│   └── db/           # Database models and configuration
+├── tests/            # Test suite (unit, integration, e2e)
+├── docker/           # Docker configuration files
+├── data/             # Sample data and database files
+│   └── db/          # SQLite database files
+├── logs/             # Application logs and coverage reports
+├── reports/          # Generated validation reports
+├── tmp/              # Temporary files (uploads, test files)
+│   └── uploads/      # Temporary uploaded files
+└── Documentation/    # Comprehensive documentation
+```
 
 ## Features
 
-- ✅ File upload via API (`/upload-data/`)
-- ✅ File upload from URL (`/upload-from-url/`)
+- ✅ File upload via API
+- ✅ URL-based file upload
 - ✅ Comprehensive data validation
 - ✅ ML readiness recommendations
-- ✅ Report generation (Markdown, HTML, PDF)
-- ✅ Database storage of validation results
-- ✅ History and summary endpoints
+- ✅ Multiple report formats (MD, HTML, PDF, Excel, JSON, CSV, XML, Parquet)
+- ✅ Database storage of validation history
+- ✅ Comparison and trend analysis
+- ✅ Batch file processing
+- ✅ Webhook notifications
+- ✅ Custom validation rules
+- ✅ Rate limiting and request logging
+- ✅ Health checks and metrics
 - ✅ Full test coverage (≥90%)
+
+## Documentation
+
+For detailed documentation, see the [`Documentation/`](Documentation/) folder:
+
+- **[DEPLOYMENT.md](Documentation/DEPLOYMENT.md)** - Deployment instructions (Docker, production setup)
+- **[EXAMPLES.md](Documentation/EXAMPLES.md)** - API usage examples
+- **[TESTING_GUIDE.md](Documentation/TESTING_GUIDE.md)** - Testing guide and best practices
+- **[USE_CASES.md](Documentation/USE_CASES.md)** - Use case descriptions and integration examples
+
+## Docker Deployment
+
+```bash
+cd docker
+docker-compose up -d
+```
+
+For detailed Docker setup, see [Documentation/DEPLOYMENT.md](Documentation/DEPLOYMENT.md).
+
+## License
+
+MIT License

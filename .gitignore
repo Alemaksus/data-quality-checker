@@ -8,7 +8,7 @@ __pycache__/
 env/
 venv/
 
-# PyCharm project settings (optional, useful если делишься проектом)
+# PyCharm project settings
 .idea/
 
 # Environment variables or secrets
@@ -27,11 +27,19 @@ Thumbs.db
 # Generated files
 results.txt
 .coverage
+
+# Logs and coverage reports
+logs/
+*.log
 coverage.xml
 htmlcov/
 
-# Temporary uploads
-/tmp_uploads/
+# Temporary files
+tmp/
+
+# Database files
+*.sqlite3
+data/db/*.sqlite3
 
 # Local documentation (not for commit)
-PROJECT_STATUS.md
+Documentation/PROJECT_STATUS.md

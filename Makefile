@@ -33,9 +33,9 @@ clean:
 	find . -type d -name __pycache__ -exec rm -r {} +
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "*.egg-info" -exec rm -r {} +
-	rm -rf htmlcov
+	rm -rf logs/htmlcov
 	rm -rf .pytest_cache
 	rm -rf .coverage
 	rm -rf reports/*.html reports/*.md reports/*.pdf
-	rm -rf tmp_uploads/*
+	rm -rf tmp/*
 

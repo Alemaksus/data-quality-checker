@@ -6,7 +6,7 @@ import sqlite3
 import os
 
 # Get absolute path to the database
-db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'db.sqlite3'))
+db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'db', 'db.sqlite3'))
 
 # SQL to create the view
 create_view_sql = """

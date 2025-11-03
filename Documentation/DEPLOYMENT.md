@@ -121,9 +121,9 @@ docker-compose down -v
    docker run -d \
      --name data-quality-checker \
      -p 8000:8000 \
-     -v $(pwd)/db.sqlite3:/app/db.sqlite3 \
+     -v $(pwd)/data/db/db.sqlite3:/app/data/db/db.sqlite3 \
      -v $(pwd)/reports:/app/reports \
-     -v $(pwd)/tmp_uploads:/app/tmp_uploads \
+     -v $(pwd)/tmp:/app/tmp \
      --env-file .env \
      data-quality-checker
    ```
@@ -231,7 +231,7 @@ See `.env.example` for the full list.
 
 ### SQLite (Default)
 
-SQLite database is created automatically on first run. The `db.sqlite3` file will be created in the project root.
+SQLite database is created automatically on first run. The `db.sqlite3` file will be created in the `data/db/` directory.
 
 ### PostgreSQL (Optional)
 

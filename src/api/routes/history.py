@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from src.db.database import SessionLocal
 from src.db.models import CheckSession, Issue
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime
 
 # Create a new router instance
@@ -27,7 +28,7 @@ class IssueOut(BaseModel):
     severity: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Pydantic response schema for a check session (used to serialize ORM output) with nested issues
@@ -41,19 +42,47 @@ class CheckSessionOut(BaseModel):
     issues: Optional[List[IssueOut]] = []
 
     class Config:
-        orm_mode = True  # Tells Pydantic to work with SQLAlchemy models
+        from_attributes = True  # Tells Pydantic to work with SQLAlchemy models (Pydantic v2)
 
 
-# GET endpoint that returns all check sessions from the database
-@router.get("/checks/history", response_model=List[CheckSessionOut])
+# GET endpoint that returns all check sessions from the database with pagination
+@router.get("/checks/history", response_model=dict)
 def get_check_sessions(
         with_issues: bool = Query(False, description="Include issues in response"),
+        page: int = Query(1, ge=1, description="Page number (starts from 1)"),
+        page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
         db: Session = Depends(get_db)
 ):
     """
-    Returns a list of all check session records in descending order of creation time.
+    Returns a paginated list of check session records in descending order of creation time.
     """
+    # Calculate offset
+    offset = (page - 1) * page_size
+    
+    # Get total count
+    total_count = db.query(func.count(CheckSession.id)).scalar()
+    
+    # Get paginated results
     query = db.query(CheckSession)
     if with_issues:
         query = query.options(joinedload(CheckSession.issues))
-    return query.order_by(CheckSession.created_at.desc()).all()
+    
+    sessions = query.order_by(CheckSession.created_at.desc()).offset(offset).limit(page_size).all()
+    
+    # Calculate pagination metadata
+    total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 0
+    
+    # Serialize sessions using Pydantic models
+    items = [CheckSessionOut.model_validate(session) for session in sessions]
+    
+    return {
+        "items": [item.model_dump() for item in items],
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_count,
+            "total_pages": total_pages,
+            "has_next": page < total_pages,
+            "has_previous": page > 1
+        }
+    }

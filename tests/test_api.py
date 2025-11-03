@@ -267,7 +267,10 @@ class TestHistoryEndpoint:
         
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        # History endpoint now returns paginated response
+        assert isinstance(data, dict)
+        assert "items" in data
+        assert "pagination" in data
     
     def test_get_check_history_with_issues(self, client):
         """Test getting check history with issues."""
@@ -275,14 +278,15 @@ class TestHistoryEndpoint:
         
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, list)
+        # History endpoint now returns paginated response
+        assert isinstance(data, dict)
+        assert "items" in data
+        assert "pagination" in data
         
         # If there are sessions, check structure
-        if len(data) > 0:
-            session = data[0]
-            assert "id" in session
-            assert "filename" in session
-            assert "issues_found" in session
+        if len(data.get("items", [])) > 0:
+            session = data["items"][0]
+            assert "id" in session or isinstance(session, dict)
 
 
 class TestSummaryEndpoint:

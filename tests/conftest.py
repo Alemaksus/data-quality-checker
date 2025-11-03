@@ -110,8 +110,8 @@ def temp_reports_dir(tmp_path):
 @pytest.fixture
 def temp_uploads_dir(tmp_path):
     """Create a temporary directory for uploads."""
-    uploads_dir = tmp_path / "tmp_uploads"
-    uploads_dir.mkdir(exist_ok=True)
+    uploads_dir = tmp_path / "tmp" / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
     return uploads_dir
 
 

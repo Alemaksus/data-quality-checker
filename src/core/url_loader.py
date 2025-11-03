@@ -76,8 +76,8 @@ async def download_file_from_url(url: str, timeout: int = 30) -> Path:
                 filename = filename.rsplit('.', 1)[0] + extension
         
         # Create temporary file
-        temp_dir = Path("tmp_uploads")
-        temp_dir.mkdir(exist_ok=True)
+        temp_dir = Path("tmp/uploads")
+        temp_dir.mkdir(parents=True, exist_ok=True)
         
         temp_file_path = temp_dir / f"url_{os.urandom(8).hex()}_{filename}"
         
