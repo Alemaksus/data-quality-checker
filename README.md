@@ -7,14 +7,15 @@ Data Quality Checker is a professional-grade tool for validating the structural 
 ## What It Does
 
 The Data Quality Checker performs:
-- **Data Validation**: Missing values, duplicates, data types, ranges, email/phone/date validation
+- **Data Validation**: Missing values, duplicates, data types, ranges, email/phone/date validation, outliers detection
 - **ML Readiness Analysis**: Provides ML readiness score and recommendations for feature engineering
-- **Comprehensive Reporting**: Generates reports in multiple formats (Markdown, HTML, PDF, Excel, JSON, CSV, XML, Parquet)
-- **API Integration**: RESTful API with Swagger UI documentation
-- **History Tracking**: Stores validation sessions and provides comparison capabilities
-- **Batch Processing**: Process multiple files at once
-- **Webhooks**: Automated notifications for validation events
-- **Custom Validation Rules**: Configure custom validation rules via API
+- **Comprehensive Reporting**: Generates reports in multiple formats (Markdown, HTML, PDF, Excel, JSON, CSV, XML, Parquet) with visualizations
+- **API Integration**: RESTful API with customized Swagger UI documentation
+- **History Tracking**: Stores validation sessions with pagination and provides comparison/trend analysis capabilities
+- **Batch Processing**: Process multiple files at once with detailed results
+- **Webhooks**: Automated notifications for validation events with HMAC signature verification
+- **Custom Validation Rules**: Configure custom validation rules via API (thresholds, ranges, formats, etc.)
+- **Monitoring & Metrics**: Health checks, API usage metrics, structured logging, rate limiting
 
 ## Quick Start
 
@@ -38,7 +39,7 @@ Access the API documentation at: `http://127.0.0.1:8000/docs`
 pytest --cov=src --cov-report=term-missing
 ```
 
-Coverage threshold: **90%** (currently **91.76%**)
+Coverage threshold: **90%** (currently **91.80%**)
 
 ## Project Structure
 
@@ -70,8 +71,11 @@ Coverage threshold: **90%** (currently **91.76%**)
 - ✅ Batch file processing
 - ✅ Webhook notifications
 - ✅ Custom validation rules
-- ✅ Rate limiting and request logging
-- ✅ Health checks and metrics
+- ✅ Rate limiting and structured request logging
+- ✅ Health checks and API usage metrics
+- ✅ Data visualizations (charts for missing values, distributions, issues by severity)
+- ✅ Pagination for history endpoints
+- ✅ Customized Swagger UI
 - ✅ Full test coverage (≥90%)
 
 ## Documentation
