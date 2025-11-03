@@ -24,5 +24,8 @@ Thumbs.db
 # Reports, test outputs
 /reports/
 
-# .gitignore
+# Generated files
+results.txt
+
+# Temporary uploads
 /tmp_uploads/

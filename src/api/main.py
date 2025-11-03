@@ -26,17 +26,25 @@ from typing import Literal, Optional
 from pathlib import Path
 import shutil
 import uuid
+import os
 
 from src.api.routes import history, summary
 from src.core.data_loader import load_data  # will be implemented
 from src.core.generate_sample_report import generate_data_quality_report
 
 app = FastAPI(title="Data Quality Checker")
+
+# CORS configuration - more secure defaults
+# For production, set CORS_ORIGINS environment variable (comma-separated list)
+# Example: CORS_ORIGINS="http://localhost:3000,https://yourdomain.com"
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
+cors_origins = [origin.strip() for origin in cors_origins if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Можно указать конкретный frontend (например, "http://localhost:3000")
+    allow_origins=cors_origins,  # Specific origins only (not "*")
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -52,6 +60,7 @@ async def upload_data(
     include_ai_insights: bool = Form(True),
     client_name: Optional[str] = Form(None)
 ):
+    temp_file_path = None
     try:
         # Save uploaded file to a temporary folder
         temp_dir = Path("tmp_uploads")
@@ -77,7 +86,9 @@ async def upload_data(
         raise HTTPException(status_code=400, detail=f"❌ {str(e)}")
 
     finally:
-        try:
-            temp_file_path.unlink(missing_ok=True)
-        except Exception:
-            pass
+        # Clean up temporary file if it was created
+        if temp_file_path is not None:
+            try:
+                temp_file_path.unlink(missing_ok=True)
+            except Exception:
+                pass
