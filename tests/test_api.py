@@ -153,8 +153,19 @@ class TestUploadDataEndpoint:
         report_paths = data.get("report_paths", {})
         # Check if session_id is present (might be in report_paths or separate)
         assert "session_id" in report_paths or "issues_count" in report_paths
-
-
+    
+    def test_upload_data_error_handling(self, client):
+        """Test error handling in upload endpoint."""
+        # Test with invalid file that causes error during processing
+        response = client.post(
+            "/upload-data/",
+            files={"file": ("test.csv", b"invalid,csv,content\nbroken", "text/csv")},
+            data={"report_format": "md"}
+        )
+        
+        # Should handle error gracefully (either succeed or return 400)
+        assert response.status_code in [200, 400]
+    
 class TestUploadFromUrlEndpoint:
     """Tests for POST /upload-from-url/ endpoint."""
     
@@ -206,6 +217,45 @@ class TestUploadFromUrlEndpoint:
         
         # Should return error for unreachable URL
         assert response.status_code in [400, 408, 503]
+    
+    def test_upload_from_url_error_path(self, client):
+        """Test upload from URL error handling path."""
+        # Test that exception handling works
+        response = client.post(
+            "/upload-from-url/",
+            data={
+                "url": "http://invalid-url-test-12345.com/file.csv",
+                "report_format": "md"
+            }
+        )
+        
+        # Should return error
+        assert response.status_code in [400, 408, 503]
+    
+    def test_upload_from_url_success_path(self, client):
+        """Test upload from URL success path."""
+        from unittest.mock import patch
+        from pathlib import Path
+        import tempfile
+        
+        # Mock the download function to return a valid file
+        async def mock_download(url):
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.csv')
+            temp_file.write(b"id,name\n1,Alice\n2,Bob")
+            temp_file.close()
+            return Path(temp_file.name)
+        
+        with patch('src.api.main.download_file_from_url', side_effect=mock_download):
+            response = client.post(
+                "/upload-from-url/",
+                data={
+                    "url": "http://example.com/data.csv",
+                    "report_format": "md"
+                }
+            )
+            
+            # Should succeed
+            assert response.status_code == 200
 
 
 class TestHistoryEndpoint:

@@ -75,7 +75,7 @@ After running tests with coverage, view the HTML report:
 # Open htmlcov/index.html in your browser
 ```
 
-Coverage threshold is set to **85%** minimum (currently **87.67%**).
+Coverage threshold is set to **90%** minimum (currently **93%**).
 
 ## Project Structure
 
