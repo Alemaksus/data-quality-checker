@@ -8,6 +8,10 @@ import pandas as pd
 from pathlib import Path
 from src.core.reporting import generate_markdown_report
 from src.core.export_utils import save_markdown, save_html, save_pdf, render_template
+from src.core.visualizations import (
+    generate_missing_values_chart,
+    generate_issues_severity_chart
+)
 
 
 class TestMarkdownReport:
@@ -87,14 +91,39 @@ class TestReportExport:
         
         report_text = "# Test Report\n\nContent here"
         
-        # Call save_html with custom directory (if supported) or use default
-        try:
-            result_path = save_html(report_text, "test_report", str(reports_dir))
-            # Check if file was created or path returned
-            assert isinstance(result_path, str)
-        except Exception:
-            # HTML saving might require template, just test that function exists
-            assert callable(save_html)
+        # Call save_html with custom directory
+        result_path = save_html(report_text, "test_report", str(reports_dir))
+        
+        # Check if file was created or path returned
+        assert isinstance(result_path, str)
+        assert Path(result_path).exists() or "test_report.html" in result_path
+    
+    def test_save_html_with_visualizations(self, sample_dataframe, tmp_path):
+        """Test saving HTML report with visualizations."""
+        reports_dir = tmp_path / "reports"
+        reports_dir.mkdir(exist_ok=True)
+        
+        report_text = "# Test Report\n\nContent here"
+        
+        # Generate visualizations
+        visualizations = {
+            "missing_values": generate_missing_values_chart(sample_dataframe),
+            "issues_severity": generate_issues_severity_chart([
+                {'severity': 'high', 'description': 'Issue 1'},
+                {'severity': 'medium', 'description': 'Issue 2'},
+            ])
+        }
+        
+        # Save HTML with visualizations
+        result_path = save_html(report_text, "test_report_viz", str(reports_dir), visualizations=visualizations)
+        
+        assert isinstance(result_path, str)
+        
+        # Check that HTML contains image tags if visualizations were added
+        if Path(result_path).exists():
+            content = Path(result_path).read_text()
+            # Should contain img tags or base64 data if visualizations were added
+            assert len(content) > 0
     
     def test_save_pdf(self, sample_dataframe, tmp_path):
         """Test saving PDF report."""

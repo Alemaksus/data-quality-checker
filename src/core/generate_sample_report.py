@@ -2,9 +2,15 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, Dict
 from src.core.reporting import generate_markdown_report
-from src.core.export_utils import save_markdown, save_html, save_pdf
+from src.core.export_utils import save_markdown, save_html, save_pdf, save_excel
 from src.core.validator import validate_dataframe
 from src.core.ml_advisor import get_ml_recommendations
+from src.core.visualizations import (
+    generate_missing_values_chart,
+    generate_missing_percentage_chart,
+    generate_issues_severity_chart,
+    generate_all_numeric_distributions
+)
 from src.db.database import SessionLocal, engine, Base
 from src.db.models import CheckSession, Issue
 from datetime import datetime
@@ -152,12 +158,31 @@ def generate_data_quality_report(
     filename = input_path.stem
     output_paths = {}
 
+    # Generate visualizations for HTML reports
+    visualizations = {}
+    if report_format in ("html", "all", "xlsx"):
+        visualizations["missing_values"] = generate_missing_values_chart(df)
+        visualizations["missing_percentage"] = generate_missing_percentage_chart(df)
+        visualizations["issues_severity"] = generate_issues_severity_chart(validation_issues)
+        visualizations["numeric_distributions"] = generate_all_numeric_distributions(df)
+
     if report_format in ("md", "all"):
         output_paths["markdown"] = save_markdown(markdown, filename)
     if report_format in ("html", "all"):
-        output_paths["html"] = save_html(markdown, filename)
+        output_paths["html"] = save_html(markdown, filename, visualizations=visualizations)
     if report_format in ("pdf", "all"):
         output_paths["pdf"] = save_pdf(markdown, filename)
+    if report_format in ("xlsx", "excel", "all"):
+        try:
+            output_paths["excel"] = save_excel(
+                df=df,
+                validation_issues=validation_issues,
+                validation_summary=validation_summary,
+                ml_recommendations=ml_recommendations,
+                filename=filename
+            )
+        except ImportError:
+            output_paths["excel"] = None  # openpyxl not installed
     
     # Add metadata to output
     output_paths["session_id"] = session_id

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: data-quality-checker-api
+    ports:
+      - "8000:8000"
+    environment:
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///./db.sqlite3}
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    volumes:
+      # Persist database
+      - ./db.sqlite3:/app/db.sqlite3
+      # Persist reports
+      - ./reports:/app/reports
+      # Persist temporary uploads (optional, can be ephemeral)
+      - ./tmp_uploads:/app/tmp_uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/docs', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: PostgreSQL database service (uncomment if needed)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: data-quality-checker-db
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER:-dataquality}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+  #     - POSTGRES_DB=${POSTGRES_DB:-dataquality}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+# volumes:
+#   postgres_data:
+

@@ -28,7 +28,7 @@ import shutil
 import uuid
 import os
 
-from src.api.routes import history, summary
+from src.api.routes import history, summary, comparison
 from src.core.data_loader import load_data  # will be implemented
 from src.core.generate_sample_report import generate_data_quality_report
 from src.core.url_loader import download_file_from_url
@@ -52,12 +52,13 @@ app.add_middleware(
 # Include route modules
 app.include_router(history.router)
 app.include_router(summary.router)
+app.include_router(comparison.router)
 
 
 @app.post("/upload-data/")
 async def upload_data(
     file: UploadFile = File(...),
-    report_format: Literal["md", "html", "pdf", "all"] = Form("pdf"),
+    report_format: Literal["md", "html", "pdf", "xlsx", "excel", "all"] = Form("pdf"),
     include_ai_insights: bool = Form(True),
     client_name: Optional[str] = Form(None)
 ):
@@ -98,7 +99,7 @@ async def upload_data(
 @app.post("/upload-from-url/")
 async def upload_from_url(
     url: str = Form(..., description="HTTP/HTTPS URL to download file from"),
-    report_format: Literal["md", "html", "pdf", "all"] = Form("pdf"),
+    report_format: Literal["md", "html", "pdf", "xlsx", "excel", "all"] = Form("pdf"),
     include_ai_insights: bool = Form(True),
     client_name: Optional[str] = Form(None)
 ):

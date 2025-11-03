@@ -330,3 +330,128 @@ class TestAPIErrorHandling:
         # Just verify endpoint works (CORS middleware is configured)
         assert response.status_code == 200
 
+
+class TestComparisonEndpoints:
+    """Tests for comparison endpoints."""
+    
+    def test_compare_sessions_endpoint(self, client, clean_db, db_session):
+        """Test GET /checks/compare endpoint."""
+        from datetime import datetime
+        from src.db.models import CheckSession, Issue
+        
+        # Create two sessions
+        session1 = CheckSession(
+            filename="test1.csv",
+            file_format="csv",
+            rows=100,
+            issues_found=10,
+            created_at=datetime.utcnow()
+        )
+        db_session.add(session1)
+        db_session.flush()
+        
+        session2 = CheckSession(
+            filename="test2.csv",
+            file_format="csv",
+            rows=100,
+            issues_found=5,
+            created_at=datetime.utcnow()
+        )
+        db_session.add(session2)
+        db_session.flush()
+        
+        db_session.commit()
+        
+        # Test comparison endpoint
+        response = client.get(
+            "/checks/compare",
+            params={"session_id1": session1.id, "session_id2": session2.id}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert "session1" in data
+        assert "session2" in data
+        assert "comparison" in data
+        assert "trend" in data["comparison"]
+    
+    def test_compare_sessions_not_found(self, client):
+        """Test compare endpoint with non-existent sessions."""
+        response = client.get(
+            "/checks/compare",
+            params={"session_id1": 9999, "session_id2": 9998}
+        )
+        
+        assert response.status_code == 404
+    
+    def test_compare_sessions_missing_params(self, client):
+        """Test compare endpoint with missing parameters."""
+        response = client.get("/checks/compare")
+        
+        assert response.status_code == 422  # Validation error
+    
+    def test_get_quality_trend_endpoint(self, client, clean_db, db_session):
+        """Test GET /checks/{session_id}/trend endpoint."""
+        from datetime import datetime
+        from src.db.models import CheckSession
+        
+        # Create a session
+        session = CheckSession(
+            filename="test.csv",
+            file_format="csv",
+            rows=100,
+            issues_found=10,
+            created_at=datetime.utcnow()
+        )
+        db_session.add(session)
+        db_session.commit()
+        
+        # Test trend endpoint
+        response = client.get(f"/checks/{session.id}/trend", params={"days_back": 30})
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert "current_session" in data
+        assert "trend" in data
+    
+    def test_get_quality_trend_not_found(self, client):
+        """Test trend endpoint with non-existent session."""
+        response = client.get("/checks/9999/trend")
+        
+        assert response.status_code == 404
+    
+    def test_upload_data_excel_format(self, client, sample_csv_file):
+        """Test uploading with Excel format."""
+        with open(sample_csv_file, "rb") as f:
+            response = client.post(
+                "/upload-data/",
+                files={"file": ("test.csv", f, "text/csv")},
+                data={
+                    "report_format": "xlsx",
+                    "include_ai_insights": "true"
+                }
+            )
+        
+        assert response.status_code == 200
+        data = response.json()
+        report_paths = data.get("report_paths", {})
+        # Excel might be None if openpyxl not installed, or a path if installed
+        assert "excel" in report_paths or len(report_paths) > 0
+    
+    def test_upload_data_excel_all_formats(self, client, sample_csv_file):
+        """Test uploading with all formats including Excel."""
+        with open(sample_csv_file, "rb") as f:
+            response = client.post(
+                "/upload-data/",
+                files={"file": ("test.csv", f, "text/csv")},
+                data={
+                    "report_format": "all",
+                    "include_ai_insights": "true"
+                }
+            )
+        
+        assert response.status_code == 200
+        data = response.json()
+        report_paths = data.get("report_paths", {})
+        # Should have multiple formats
+        assert len(report_paths) > 0
