@@ -98,4 +98,4 @@ For detailed Docker setup, see [Documentation/DEPLOYMENT.md](Documentation/DEPLO
 
 ## License
 
-MIT License
+Aleks Mаksakov – QA Automation Engineer focused on AI systems testing, LangChain workflows, and test strategy for LLMs.
